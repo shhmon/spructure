@@ -24,10 +24,16 @@ class Path:
 
         return file
 
+    def make_directory(self):
+        path = str(self)
+        if not os.path.isdir(path): os.mkdir(path)
+        return self
+
     def clear_directory(self):
         path = str(self)
         if os.path.isdir(path): shutil.rmtree(path)
         os.mkdir(path)
+        return self
 
     def __str__(self):
         return os.path.join(*self.args)

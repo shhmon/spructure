@@ -66,8 +66,7 @@ def traverse_hierarchy(db, node, path = output_path, query = None, chain = None)
     print(f"Traversing {name}")
 
     if name:
-        path = path.append(name)
-        os.mkdir(str(path))
+        path = path.append(name).make_directory()
 
     if dirs:
         for subnode in dirs:
@@ -104,7 +103,6 @@ def main(keep: bool, reset: bool):
     if reset: output_path.clear_directory()
     traverse_hierarchy(db, hierarchy)
     subprocess.call(f'open {output_path}', shell=True)
-
     print('Done')
     
 if __name__ == '__main__':
