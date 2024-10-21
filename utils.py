@@ -48,7 +48,9 @@ def addPredicates(node, query = None):
         query = Query().from_(Samples).select('*').where(Samples.local_path.notnull())
 
     if custom_where:
-        query = query.where(CustomFunction(custom_where)())
+        for predicate in custom_where:
+            query = query.where(CustomFunction(predicate)())
+
     if tag_regex:
         query = query.where(Regexp(tag_regex, Samples.tags))
     if file_regex:

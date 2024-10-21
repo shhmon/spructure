@@ -92,7 +92,11 @@
     },
     {
       "name": "tonal",
-      "query": "select * from samples where audio_key not null and instr(tags, 'drums') = 0 and instr(filename, '808') = 0 and local_path not null"
+      "where": [
+        "audio_key not null",
+        "INSTR(tags, 'drums') = 0",
+        "INSTR(filename, '808') = 0"
+      ]
     }
   ],
   "catchall": {
