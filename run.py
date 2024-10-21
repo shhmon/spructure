@@ -68,14 +68,12 @@ def get_samples(db: sqlite3.Connection, cat: dict, sample_type = None):
         query = Query \
             .from_(samples) \
             .select('*') \
+            .where(samples.local_path.notnull()) \
             .where(Regexp(cat.get('tag_regex'), samples.tags)) \
             .where(Regexp(cat.get('file_regex'), samples.filename)) \
-            .where(samples.local_path.notnull())
 
         if sample_type:
             query = query.where(samples.sample_type == sample_type)
-
-        print(query)
 
         return execute(query)
 
