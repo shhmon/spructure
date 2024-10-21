@@ -2,25 +2,30 @@ import subprocess
 import zipfile
 import sqlite3
 import shutil
+import click
 import json
 import re
 import os
+
+from utils import PathBuilder
 
 with open ('./config/config.json', 'r') as f:
     config = json.loads(f.read())
 with open ('./config/hierarchy.json', 'r') as f:
     hierarchy = json.loads(f.read())
 
-log_dir = config['log_dir']
-sorted_dir = config['sorted_dir']
-splice_dir = config['splice_dir']
-zip_fuzzy = config['zip_fuzzy']
-zip_dir = config['zip_dir']
-username = config['username']
+log_dir     = config.get('log_dir')
+sorted_dir  = config.get('sorted_dir')
+splice_dir  = config.get('splice_dir')
+zip_fuzzy   = config.get('zip_fuzzy')
+zip_dir     = config.get('zip_dir')
+username    = config.get('username')
+
+sort_path = PathBuilder(sorted_dir)
 
 def init_db():
     print('Initializing DB')
-    
+
     sounds_db = sqlite3.connect(f'./logs/users/default/{username}/sounds.db')
 
     def regexp(expr, item):
@@ -40,40 +45,47 @@ def reset_filetree():
     if os.path.isdir(sorted_dir): shutil.rmtree(sorted_dir)
     os.mkdir(sorted_dir)
     
-    for dirname in hierarchy['sample_dirs'].keys():
-        os.mkdir(os.path.join(sorted_dir, dirname))
+    for dirname, entry in hierarchy.get('sample_dirs').items():
+        dir_path = sort_path.add(dirname)
+        os.mkdir(dir_path.settle())
+        split = entry.get('split')
 
-    os.mkdir(os.path.join(sorted_dir, hierarchy['catchall']['dirname']))
+        if split:
+            for sample_type in split: os.mkdir(dir_path.add(sample_type).settle())
 
-def get_samples(db: sqlite3.Connection, cat: dict, custom_query=None):
+    os.mkdir(sort_path.add(hierarchy.get('catchall').get('dirname')).settle())
+
+def get_samples(db: sqlite3.Connection, cat: dict, sample_type = None):
+    execute = lambda query: db.execute(query).fetchall()
+
     if 'query' in cat:
-        query = cat['query']
+        return execute(cat.get('query'))
     else:
         query = """
         select * from samples 
         where tags regexp '{tag_regex}'
         and filename regexp '{file_regex}'
-        {loop_filter}
-        and local_path not null;""".format (
-            tag_regex = cat['tag_regex'],
-            file_regex = cat['file_regex'],
-            loop_filter = "and sample_type = 'oneshot'" if not cat['include_loops'] else ""
-        ) if not custom_query else custom_query
-    
-    return db.execute(query).fetchall()
+        {type_filter}
+        and local_path not null;""".format(
+            tag_regex = cat.get('tag_regex'),
+            file_regex = cat.get('file_regex'),
+            type_filter = f'and sample_type = \'{sample_type}\'' if sample_type else ''
+        )
 
-def generate_links(dirname: str, samples: list):
-    print(f'Generating symlinks for {dirname}')
+        return execute(query)
+
+def generate_links(samples: list, *dirs):
+    print(f'Generating symlinks for {os.path.join(*dirs)}')
 
     for row in samples:
         sample_path = row[1]
         filename = row[10]
-        link_path = '{}/{}/{}'.format(sorted_dir, dirname, filename)
-        
+        link_path = sort_path.add(*dirs, filename).settle()
+
         if not os.path.exists(link_path):
             os.symlink(sample_path, link_path)
 
-def unpack_logs():
+def unpack_logs(keep: bool):
     print('Extracting Splice logs')
 
     if os.path.isdir(log_dir): shutil.rmtree(log_dir)
@@ -91,29 +103,44 @@ def unpack_logs():
     with zipfile.ZipFile(target, 'r') as ref:
         ref.extractall(log_dir)
 
-    os.remove(target)
+    if not keep: os.remove(target)
 
-def main():
-    unpack_logs()
+@click.command()
+@click.option('--keep/--no-keep', default=False)
+@click.option('--reset/--no-reset', default=True)
+def main(keep: bool, reset: bool):
+    unpack_logs(keep)
     db = init_db()
-    reset_filetree()
+
+    if reset: reset_filetree()
 
     sorted_samps = {}
 
     # process samples
-    for i in hierarchy['sample_dirs'].keys():
-        sorted_samps[i] = get_samples(db, hierarchy['sample_dirs'][i])
-        generate_links(i, sorted_samps[i])
+    for name, cat in hierarchy.get('sample_dirs').items():
+        if cat.get('split') and len(cat.get('split')):
+            for sample_type in cat.get('split'):
+                sorted_samps[name] = {}
+                sorted_samps[name][sample_type] = get_samples(db, cat, sample_type)
+                generate_links(sorted_samps[name][sample_type], name, sample_type)
+        else:
+            sorted_samps[name] = get_samples(db, cat)
+            generate_links(sorted_samps[name], name)
         
-    # catchall (percussion)
-    catchall_samps = get_samples(db, hierarchy['catchall'])
+    # catchall
+    catchall_samps = get_samples(db, hierarchy.get('catchall'))
 
-    for i in sorted_samps.keys():
-        for samp in sorted_samps[i]:
-            if samp in catchall_samps:
-                catchall_samps.remove(samp)
+    def remove_existing(samples):
+        duplicates = filter(lambda sample: sample in catchall_samps, samples)
+        for sample in duplicates: catchall_samps.remove(sample)
+
+    for name, value in sorted_samps.items():
+        if type(value) == list:
+            remove_existing(value)
+        else:
+            remove_existing(value.values())
                 
-    generate_links(hierarchy['catchall']['dirname'], catchall_samps)
+    generate_links(catchall_samps, hierarchy['catchall']['dirname'])
     subprocess.call(f'open {sorted_dir}', shell=True)
 
     print('Done')
