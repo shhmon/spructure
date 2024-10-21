@@ -27,7 +27,7 @@ def play(entry: os.DirEntry):
 @click.command()
 @click.option('--dir', default=os.getcwd())
 @click.option('--dive/--no-dive', default=True)
-def main(dir: str, dive: bool):
+def infer(dir: str, dive: bool):
     inference = Inference()
     files = traverse(dir, dive)
 
@@ -43,5 +43,5 @@ def main(dir: str, dive: bool):
 
 
 if __name__ == "__main__":
-    main()
+    infer()
 
