@@ -45,7 +45,7 @@ def reset_filetree():
     if os.path.isdir(sorted_dir): shutil.rmtree(sorted_dir)
     os.mkdir(sorted_dir)
     
-    for dirname, entry in hierarchy.get('sample_dirs').items():
+    for dirname, entry in hierarchy.get('dirs').items():
         dir_path = sort_path.add(dirname)
         os.mkdir(dir_path.settle())
         split = entry.get('split')
@@ -117,7 +117,7 @@ def main(keep: bool, reset: bool):
     sorted_samps = {}
 
     # process samples
-    for name, cat in hierarchy.get('sample_dirs').items():
+    for name, cat in hierarchy.get('dirs').items():
         if cat.get('split') and len(cat.get('split')):
             for sample_type in cat.get('split'):
                 sorted_samps[name] = {}

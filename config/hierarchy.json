@@ -1,5 +1,5 @@
 {
-  "sample_dirs": {
+  "dirs": {
     "kicks": {
       "tag_regex": "(?=.*kicks)(?=.*drums)",
       "file_regex": "(kick|bd|kik)",
@@ -48,21 +48,13 @@
         "loop"
       ]
     },
-    "percussion": {
-      "tag_regex": "percussion",
-      "file_regex": "",
-      "split": [
-        "oneshot",
-        "loop"
-      ]
-    },
     "tonal": {
       "query": "select * from samples where audio_key not null and instr(tags, 'drums') = 0 and instr(filename, '808') = 0 and local_path not null"
     }
   },
   "catchall": {
-    "dirname": "catchall",
-    "tag_regex": "",
+    "dirname": "percussion",
+    "tag_regex": "percussion",
     "file_regex": ""
   }
 }
