@@ -8,21 +8,19 @@ target_types = ['wav', 'aiff']
 def traverse(start: str, dive = False):
     files = []
 
-    for entry in os.listdir(start):
-        path = os.path.join(start, entry)
-
-        if os.path.isdir(path):
-            files = files + traverse(path, dive) if dive else files
+    for entry in os.scandir(start):
+        if entry.is_dir():
+            files = files + traverse(entry.path, dive) if dive else files
         else:
-            files.append(path)
+            files.append(entry)
 
     return files
 
-def get_type(path: str):
-    return path.split('/')[-1].split('.')[-1]
+def get_type(entry: os.DirEntry):
+    return entry.name.split('.')[-1]
 
-def play(path: str):
-    wave_obj = sa.WaveObject.from_wave_file(path)
+def play(entry: os.DirEntry):
+    wave_obj = sa.WaveObject.from_wave_file(entry.path)
     play_obj = wave_obj.play()
     play_obj.wait_done()
 
@@ -36,12 +34,12 @@ def main(dir: str, dive: bool):
     for file in files:
         if get_type(file) in target_types:
             try:
-                predicition = inference.predict(file)
-                print(file, predicition)
-            except:
-                print(file, "Failed prediction")
+                predicition = inference.predict(file.path)
+                print(file.path, predicition)
+                play(file)
+            except IndexError:
+                print(file.path, "Sample too long")
 
-            play(file)
 
 
 if __name__ == "__main__":
