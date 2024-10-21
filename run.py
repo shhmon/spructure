@@ -1,3 +1,4 @@
+from pypika import Query, Table, CustomFunction
 import subprocess
 import zipfile
 import sqlite3
@@ -53,24 +54,28 @@ def reset_filetree():
         if split:
             for sample_type in split: os.mkdir(dir_path.add(sample_type).settle())
 
-    os.mkdir(sort_path.add(hierarchy.get('catchall').get('dirname')).settle())
+    os.mkdir(sort_path.add(hierarchy.get('catchall').get('name')).settle())
 
 def get_samples(db: sqlite3.Connection, cat: dict, sample_type = None):
-    execute = lambda query: db.execute(query).fetchall()
+    execute = lambda query: db.execute(str(query)).fetchall()
+
+    samples = Table('samples')
+    Regexp = CustomFunction('REGEXP', ['expr', 'item'])
 
     if 'query' in cat:
         return execute(cat.get('query'))
     else:
-        query = """
-        select * from samples 
-        where tags regexp '{tag_regex}'
-        and filename regexp '{file_regex}'
-        {type_filter}
-        and local_path not null;""".format(
-            tag_regex = cat.get('tag_regex'),
-            file_regex = cat.get('file_regex'),
-            type_filter = f'and sample_type = \'{sample_type}\'' if sample_type else ''
-        )
+        query = Query \
+            .from_(samples) \
+            .select('*') \
+            .where(Regexp(cat.get('tag_regex'), samples.tags)) \
+            .where(Regexp(cat.get('file_regex'), samples.filename)) \
+            .where(samples.local_path.notnull())
+
+        if sample_type:
+            query = query.where(samples.sample_type == sample_type)
+
+        print(query)
 
         return execute(query)
 
@@ -140,7 +145,7 @@ def main(keep: bool, reset: bool):
         else:
             remove_existing(value.values())
                 
-    generate_links(catchall_samps, hierarchy['catchall']['dirname'])
+    generate_links(catchall_samps, hierarchy['catchall']['name'])
     subprocess.call(f'open {sorted_dir}', shell=True)
 
     print('Done')

@@ -53,7 +53,7 @@
     }
   },
   "catchall": {
-    "dirname": "percussion",
+    "name": "percussion",
     "tag_regex": "percussion",
     "file_regex": ""
   }
