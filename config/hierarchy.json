@@ -14,6 +14,85 @@
           "sample_type": "loop"
         }
       ]
+    },
+    {
+      "name": "snares",
+      "tag_regex": "(?=.*snares)(?=.*drums)",
+      "file_regex": "(snare|snr|sd)",
+      "dirs": [
+        {
+          "name": "oneshots",
+          "sample_type": "oneshot"
+        },
+        {
+          "name": "loops",
+          "sample_type": "loop"
+        }
+      ]
+    },
+    {
+      "name": "hats",
+      "tag_regex": "(?=.*hats)(?=.*drums)",
+      "file_regex": "(hat|hihat)",
+      "dirs": [
+        {
+          "name": "oneshots",
+          "sample_type": "oneshot"
+        },
+        {
+          "name": "loops",
+          "sample_type": "loop"
+        }
+      ]
+    },
+    {
+      "name": "toms",
+      "tag_regex": "(?=.*toms)(?=.*drums)",
+      "file_regex": "",
+      "dirs": [
+        {
+          "name": "oneshots",
+          "sample_type": "oneshot"
+        },
+        {
+          "name": "loops",
+          "sample_type": "loop"
+        }
+      ]
+    },
+    {
+      "name": "claps",
+      "tag_regex": "claps",
+      "file_regex": "^(?!.*snare.*$).*$",
+      "dirs": [
+        {
+          "name": "oneshots",
+          "sample_type": "oneshot"
+        },
+        {
+          "name": "loops",
+          "sample_type": "loop"
+        }
+      ]
+    },
+    {
+      "name": "808",
+      "tag_regex": "(?=.*808)(?=.*bass)",
+      "file_regex": "808",
+      "dirs": [
+        {
+          "name": "oneshots",
+          "sample_type": "oneshot"
+        },
+        {
+          "name": "loops",
+          "sample_type": "loop"
+        }
+      ]
+    },
+    {
+      "name": "tonal",
+      "query": "select * from samples where audio_key not null and instr(tags, 'drums') = 0 and instr(filename, '808') = 0 and local_path not null"
     }
   ],
   "catchall": {
