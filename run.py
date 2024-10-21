@@ -15,46 +15,35 @@ with open ('./config/config.json', 'r') as f:
 with open ('./config/hierarchy.json', 'r') as f:
     hierarchy = json.loads(f.read())
 
-log_dir     = config.get('log_dir')
-sorted_dir  = config.get('sorted_dir')
-splice_dir  = config.get('splice_dir')
-zip_fuzzy   = config.get('zip_fuzzy')
-zip_dir     = config.get('zip_dir')
-username    = config.get('username')
+sort_path = PathBuilder(config.get('sorted_dir'))
 
-sort_path = PathBuilder(sorted_dir)
+Samples = Table('samples')
+Regexp = CustomFunction('REGEXP', ['expr', 'item'])
 
 def init_db():
     print('Initializing DB')
 
-    sounds_db = sqlite3.connect(f'./logs/users/default/{username}/sounds.db')
-
+    username = config.get('username')
+    
     def regexp(expr, item):
         try:
             reg = re.compile(expr)
             return reg.search(item) is not None
         except Exception as e:
             print(e)
+    
+    db = sqlite3.connect(f'./logs/users/default/{username}/sounds.db')
+    db.create_function("REGEXP", 2, regexp)
 
-    sounds_db.create_function("REGEXP", 2, regexp)
-
-    return sounds_db
+    return db
 
 def reset_filetree():
     print('Resetting filetree')
 
-    if os.path.isdir(sorted_dir): shutil.rmtree(sorted_dir)
-    os.mkdir(sorted_dir)
-    
-    for dirname, entry in hierarchy.get('dirs').items():
-        dir_path = sort_path.add(dirname)
-        os.mkdir(dir_path.settle())
-        split = entry.get('split')
+    path = sort_path.settle()
 
-        if split:
-            for sample_type in split: os.mkdir(dir_path.add(sample_type).settle())
-
-    os.mkdir(sort_path.add(hierarchy.get('catchall').get('name')).settle())
+    if os.path.isdir(path): shutil.rmtree(path)
+    os.mkdir(path)
 
 def get_samples(db: sqlite3.Connection, cat: dict, sample_type = None):
     execute = lambda query: db.execute(str(query)).fetchall()
@@ -91,6 +80,10 @@ def generate_links(samples: list, *dirs):
 def unpack_logs(keep: bool):
     print('Extracting Splice logs')
 
+    log_dir     = config.get('log_dir')
+    zip_fuzzy   = config.get('zip_fuzzy')
+    zip_dir     = config.get('zip_dir')
+
     if os.path.isdir(log_dir): shutil.rmtree(log_dir)
     os.mkdir(log_dir)
 
@@ -107,6 +100,43 @@ def unpack_logs(keep: bool):
         ref.extractall(log_dir)
 
     if not keep: os.remove(target)
+
+def traverse_hierarchy(db, node, path = None, query = None):
+    dirs = node.get('dirs')
+    tag_regex = node.get('tag_regex')
+    file_regex = node.get('file_regex')
+    sample_type = node.get('sample_type')
+    custom_where = node.get('where')
+    name = node.get('name')
+
+    if not query:
+        query = Query().from_(Samples).select('*').where(Samples.local_path.notnull())
+
+    if custom_where:
+        query = query.where(CustomFunction(custom_where)())
+    if tag_regex:
+        query = query.where(Regexp(tag_regex, Samples.tags))
+    if file_regex:
+        query = query.where(Regexp(file_regex, Samples.filename))
+    if sample_type:
+        query = query.where(Samples.sample_type == sample_type)
+
+    if not path:
+        path = sort_path.add(name)
+
+    os.mkdir(path.settle())
+
+    if dirs:
+        for subnode in dirs: traverse_hierarchy(db, subnode, path, query)
+    else:
+        samples = db.execute(query).fetchall()
+        for row in samples:
+            sample_path = row[1]
+            filename = row[10]
+            link_path = path.add(filename).settle()
+
+            if not os.path.exists(link_path):
+                os.symlink(sample_path, link_path)
 
 @click.command()
 @click.option('--keep/--no-keep', default=False)

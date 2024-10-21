@@ -1,57 +1,21 @@
 {
-  "dirs": {
-    "kicks": {
+  "dirs": [
+    {
+      "name": "kicks",
       "tag_regex": "(?=.*kicks)(?=.*drums)",
       "file_regex": "(kick|bd|kik)",
-      "split": [
-        "oneshot",
-        "loop"
+      "dirs": [
+        {
+          "name": "oneshots",
+          "sample_type": "oneshot"
+        },
+        {
+          "name": "loops",
+          "sample_type": "loop"
+        }
       ]
-    },
-    "snares": {
-      "tag_regex": "(?=.*snares)(?=.*drums)",
-      "file_regex": "(snare|snr|sd)",
-      "split": [
-        "oneshot",
-        "loop"
-      ]
-    },
-    "hats": {
-      "tag_regex": "(?=.*hats)(?=.*drums)",
-      "file_regex": "(hat|hihat)",
-      "split": [
-        "oneshot",
-        "loop"
-      ]
-    },
-    "toms": {
-      "tag_regex": "(?=.*toms)(?=.*drums)",
-      "file_regex": "",
-      "split": [
-        "oneshot",
-        "loop"
-      ]
-    },
-    "claps": {
-      "tag_regex": "claps",
-      "file_regex": "^(?!.*snare.*$).*$",
-      "split": [
-        "oneshot",
-        "loop"
-      ]
-    },
-    "808": {
-      "tag_regex": "(?=.*808)(?=.*bass)",
-      "file_regex": "808",
-      "split": [
-        "oneshot",
-        "loop"
-      ]
-    },
-    "tonal": {
-      "query": "select * from samples where audio_key not null and instr(tags, 'drums') = 0 and instr(filename, '808') = 0 and local_path not null"
     }
-  },
+  ],
   "catchall": {
     "name": "percussion",
     "tag_regex": "percussion",
