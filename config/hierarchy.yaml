@@ -73,9 +73,6 @@ dirs:
             tag_regex: keys
       - name: loops
         sample_type: loop
-    # dirs:
-    #   - name: "f#"
-    #     key_regex: "(Fmin|f#|F#|Gbmin|Gb#)"
 
 catchall:
   name: misc
