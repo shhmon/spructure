@@ -56,7 +56,7 @@ def unpack_logs(keep: bool):
 
     if not keep: os.remove(str(target))
 
-def traverse_hierarchy(db, node, symlink = True, path = output_path, query = None):
+def traverse_hierarchy(db, node, symlink=True, path=output_path, query=None):
     dirs = node.get('dirs')
     name = node.get('name')
     output = node.get('output')
