@@ -1,3 +1,8 @@
+# Predicate helpers:
+# tag_regex
+# file_regex
+# sample_type
+
 dirs:
   - name: kicks
     tag_regex: "(?=.*kicks)(?=.*drums)"
