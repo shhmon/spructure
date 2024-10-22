@@ -69,9 +69,8 @@ def traverse_hierarchy(db, node, symlink = True, path = output_path, query = Non
         return [*map(SampleWrapper, db.execute(str(query)).fetchall())]
 
     def remove_duplicates(target, checkList):
-        get_hash = lambda s: s.get_hash() 
-        hashes = [*map(get_hash, checkList)]
-        return [s for s in target if get_hash(s) not in hashes]
+        hashes = [*map(lambda s: s.hash, checkList)]
+        return [s for s in target if s.hash not in hashes]
 
     if name:
         path = path.append(name).make_directory()
@@ -100,10 +99,10 @@ def generate_symlinks(samples: list, path: Path):
     print(f'Generating symlinks for {path} ({len(samples)})')
 
     for sample in samples:
-        link_path = str(path.append(sample.get_filename()))
+        link_path = str(path.append(sample.filename))
 
         if not os.path.exists(link_path):
-            os.symlink(sample.get_path(), link_path)
+            os.symlink(sample.path, link_path)
 
 @click.command()
 @click.option('--keep/--no-keep', default=False)

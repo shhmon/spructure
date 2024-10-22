@@ -52,15 +52,9 @@ class Path:
 class SampleWrapper:
     def __init__(self, sample):
         self.sample = sample
-        
-    def get_filename(self):
-        return self.sample[10]
-
-    def get_path(self):
-        return self.sample[1]
-
-    def get_hash(self):
-        return self.sample[8]
+        self.path = sample[1]
+        self.hash = sample[8]
+        self.filename = sample[10]
 
 def addPredicates(node, query = None):
     tag_regex = node.get('tag_regex')
@@ -77,7 +71,7 @@ def addPredicates(node, query = None):
             query = query.where(RawSql(predicate))
 
     if key_regex:
-        query = query.where(Regexp(tag_regex), Samples.audio_keyy)
+        query = query.where(Regexp(key_regex, Samples.audio_key) | Regexp(key_regex, Samples.filename))
     if tag_regex:
         query = query.where(Regexp(tag_regex, Samples.tags))
     if file_regex:
