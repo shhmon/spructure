@@ -62,8 +62,6 @@ def traverse_hierarchy(db, node, symlink = True, path = output_path, query = Non
     output = node.get('output')
     catchall = node.get('catchall')
 
-    print(f"Traversing {name}")
-
     samples = []
     query = addPredicates(node, query)
 
@@ -84,6 +82,7 @@ def traverse_hierarchy(db, node, symlink = True, path = output_path, query = Non
         if output:
             current_samples = execute(query)
             current_samples = remove_duplicates(current_samples, samples)
+            samples = samples + current_samples
             if symlink: generate_symlinks(current_samples, path)
     else:
         samples = execute(query)
@@ -98,7 +97,7 @@ def traverse_hierarchy(db, node, symlink = True, path = output_path, query = Non
     return samples
 
 def generate_symlinks(samples: list, path: Path):
-    print(f'Generating symlinks for {path}')
+    print(f'Generating symlinks for {path} ({len(samples)})')
 
     for sample in samples:
         link_path = str(path.append(sample.get_filename()))

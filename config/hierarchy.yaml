@@ -7,7 +7,7 @@ dirs:
         sample_type: oneshot
         output: True
         dirs:
-          - name: test
+          - name: "f#"
             where:
               - "INSTR(audio_key, 'f#')"
       - name: loops
