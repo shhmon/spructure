@@ -56,7 +56,7 @@ def unpack_logs(keep: bool):
 
     if not keep: os.remove(str(target))
 
-def traverse_hierarchy(db, node, symlink = True, path = output_path, query = None, chain = None):
+def traverse_hierarchy(db, node, symlink = True, path = output_path, query = None):
     dirs = node.get('dirs')
     name = node.get('name')
     catchall = node.get('catchall')
@@ -71,7 +71,7 @@ def traverse_hierarchy(db, node, symlink = True, path = output_path, query = Non
 
     if dirs:
         for subnode in dirs:
-            samples = samples + traverse_hierarchy(db, subnode, symlink, path, query, chain)
+            samples = samples + traverse_hierarchy(db, subnode, symlink, path, query)
     else:
         samples = db.execute(str(query)).fetchall()
         if symlink: generate_symlinks(samples, path)
@@ -83,12 +83,9 @@ def traverse_hierarchy(db, node, symlink = True, path = output_path, query = Non
         for sample in duplicates: catchall_samples.remove(sample)
         generate_symlinks(catchall_samples, catchall_path)
 
-    print(query)
-
     return samples
 
 def generate_symlinks(samples: list, path: Path):
-    print(path.args)
     print(f'Generating symlinks for {path}')
 
     for row in samples:
