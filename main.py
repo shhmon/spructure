@@ -59,12 +59,20 @@ def unpack_logs(keep: bool):
 def traverse_hierarchy(db, node, symlink = True, path = output_path, query = None):
     dirs = node.get('dirs')
     name = node.get('name')
+    output = node.get('output')
     catchall = node.get('catchall')
 
     print(f"Traversing {name}")
 
-    query = addPredicates(node, query)
     samples = []
+    query = addPredicates(node, query)
+
+    def execute(query):
+        return db.execute(str(query)).fetchall()
+
+    def remove_duplicates(fromList, checkList):
+        duplicates = filter(lambda sample: sample in checkList, fromList)
+        for sample in duplicates: fromList.remove(sample)
 
     if name:
         path = path.append(name).make_directory()
@@ -72,15 +80,18 @@ def traverse_hierarchy(db, node, symlink = True, path = output_path, query = Non
     if dirs:
         for subnode in dirs:
             samples = samples + traverse_hierarchy(db, subnode, symlink, path, query)
+        if output:
+            current_samples = execute(query)
+            remove_duplicates(current_samples, samples)
+            generate_symlinks(current_samples, path)
     else:
-        samples = db.execute(str(query)).fetchall()
+        samples = execute(query)
         if symlink: generate_symlinks(samples, path)
 
     if catchall:
         catchall_path = path.append(catchall.get('name'))
         catchall_samples = traverse_hierarchy(db, catchall, False)
-        duplicates = filter(lambda s: s in samples, catchall_samples)
-        for sample in duplicates: catchall_samples.remove(sample)
+        remove_duplicates(catchall_samples, samples)
         generate_symlinks(catchall_samples, catchall_path)
 
     return samples

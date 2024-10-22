@@ -5,6 +5,11 @@ dirs:
     dirs:
       - name: oneshots
         sample_type: oneshot
+        output: True
+        dirs:
+          - name: test
+            where:
+              - "INSTR(audio_key, 'f#')"
       - name: loops
         sample_type: loop
   - name: snares
