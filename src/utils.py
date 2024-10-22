@@ -13,8 +13,7 @@ class Path:
         file = None
 
         try:
-            if os.path.isdir(path):
-                file = next(entry.path for entry in os.scandir(path) if query in entry.name)
+            file = next(entry.path for entry in os.scandir(path) if query in entry.name)
         except: pass
 
         return file
