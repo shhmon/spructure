@@ -1,4 +1,3 @@
-# Predicates:
 # tag_regex: tag regexp
 # file_regex: filename regexp
 # key_regex: audio_key | filename regexp
