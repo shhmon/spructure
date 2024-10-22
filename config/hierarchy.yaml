@@ -72,6 +72,7 @@ dirs:
             tag_regex: keys
       - name: loops
         sample_type: loop
+        output: True
         dirs:
           - name: bass
             tag_regex: bass

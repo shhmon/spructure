@@ -53,7 +53,7 @@ def unpack_logs(keep: bool):
 
     if not keep: os.remove(str(target))
 
-def traverse_hierarchy(db, node, path, query=None):
+def traverse(db, node, path, query=None):
     name = node.get('name')
     dirs = node.get('dirs', [])
     output = node.get('output', not dirs)
@@ -73,7 +73,7 @@ def traverse_hierarchy(db, node, path, query=None):
     samples = []
 
     for subnode in dirs:
-        new_samples = traverse_hierarchy(db, subnode, path, query)
+        new_samples = traverse(db, subnode, path, query)
         samples = samples + dedupe(new_samples, samples)
 
     if output:
@@ -81,7 +81,7 @@ def traverse_hierarchy(db, node, path, query=None):
         samples = samples + dedupe(new_samples, samples)
 
     if catchall:
-        catch_samples = traverse_hierarchy(db, catchall, path)
+        catch_samples = traverse(db, catchall, path)
         samples = samples + dedupe(catch_samples, samples)
 
     return samples
@@ -96,7 +96,7 @@ def main(keep: bool, reset: bool):
     unpack_logs(keep)
     db = init_db()
 
-    samples = traverse_hierarchy(db, hierarchy, output_path)
+    samples = traverse(db, hierarchy, output_path)
     for sample in samples: sample.generate_symlink()
     subprocess.call(f'open {output_path}', shell=True)
 
