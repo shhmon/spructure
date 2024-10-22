@@ -68,8 +68,8 @@ def traverse_hierarchy(db, node, symlink = True, path = output_path, query = Non
     def execute(query):
         return [*map(SampleWrapper, db.execute(str(query)).fetchall())]
 
-    def remove_duplicates(target, checkList):
-        hashes = [*map(lambda s: s.hash, checkList)]
+    def remove_duplicates(target, check_list):
+        hashes = [*map(lambda s: s.hash, check_list)]
         return [s for s in target if s.hash not in hashes]
 
     if name:
