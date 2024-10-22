@@ -1,10 +1,21 @@
 import os
 import shutil
 
-from pypika import CustomFunction, Query, Table
+from pypika import CustomFunction, Query, Table, Criterion
 
 Samples = Table('samples')
 Regexp = CustomFunction('REGEXP', ['expr', 'item'])
+
+class RawSql(Criterion):
+    def __init__(self, raw_sql, alias=None):
+        super().__init__(alias)
+        self.raw_sql = raw_sql
+
+    def fields(self):
+        return []
+
+    def get_sql(self, **kwargs):
+        return self.raw_sql
 
 class Path:
     def __init__(self, *args):
@@ -49,14 +60,15 @@ def addPredicates(node, query = None):
 
     if custom_where:
         for predicate in custom_where:
-            query = query.where(CustomFunction(predicate)())
-
+            query = query.where(RawSql(predicate))
     if tag_regex:
         query = query.where(Regexp(tag_regex, Samples.tags))
     if file_regex:
         query = query.where(Regexp(file_regex, Samples.filename))
     if sample_type:
         query = query.where(Samples.sample_type == sample_type)
+    
+    print(query)
 
     return query
 

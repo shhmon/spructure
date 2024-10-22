@@ -3,16 +3,16 @@ import subprocess
 import sqlite3
 import shutil
 import click
-import json
+import yaml
 import re
 import os
 
 from utils import Path, addPredicates
 
 with open ('./config/config.json', 'r') as f:
-    config = json.loads(f.read())
-with open ('./config/hierarchy.json', 'r') as f:
-    hierarchy = json.loads(f.read())
+    config = yaml.safe_load(f.read())
+with open ('./config/hierarchy.yaml', 'r') as f:
+    hierarchy = yaml.safe_load(f.read())
 
 output_path = Path(config.get('sorted_dir'))
 
@@ -80,11 +80,12 @@ def traverse_hierarchy(db, node, symlink = True, path = output_path, query = Non
         catchall_samples = traverse_hierarchy(db, catchall, False)
         duplicates = filter(lambda sample: sample in samples, catchall_samples)
         for sample in duplicates: catchall_samples.remove(sample)
-        generate_symlinks(catchall_samples, path.append(catchall_path))
+        generate_symlinks(catchall_samples, catchall_path)
 
     return samples
 
 def generate_symlinks(samples: list, path: Path):
+    print(path.args)
     print(f'Generating symlinks for {path}')
 
     for row in samples:

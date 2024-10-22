@@ -1,0 +1,57 @@
+dirs:
+  - name: kicks
+    tag_regex: "(?=.*kicks)(?=.*drums)"
+    file_regex: "(kick|bd|kik)"
+    dirs:
+      - name: oneshots
+        sample_type: oneshot
+      - name: loops
+        sample_type: loop
+  - name: snares
+    tag_regex: "(?=.*snares)(?=.*drums)"
+    file_regex: "(snare|snr|sd)"
+    dirs:
+      - name: oneshots
+        sample_type: oneshot
+      - name: loops
+        sample_type: loop
+  - name: hats
+    tag_regex: "(?=.*hats)(?=.*drums)"
+    file_regex: "(hat|hihat)"
+    dirs:
+      - name: oneshots
+        sample_type: oneshot
+      - name: loops
+        sample_type: loop
+  - name: toms
+    tag_regex: "(?=.*toms)(?=.*drums)" 
+    dirs:
+      - name: oneshots
+        sample_type: oneshot
+      - name: loops
+        sample_type: loop
+  - name: claps
+    tag_regex: claps
+    file_regex: "^(?!.*snare.*$).*$"
+    dirs:
+      - name: oneshots
+        sample_type: oneshot
+      - name: loops
+        sample_type: loop
+  - name: "808"
+    tag_regex: (?=.*808)(?=.*bass)
+    file_regex: "808"
+    dirs:
+      - name: oneshots
+        sample_type: oneshot
+      - name: loops
+        sample_type: loop
+  - name: tonal
+    where:
+      - "audio_key not null"
+      - "INSTR(tags, 'drums') = 0"
+      - "INSTR(filename, '808') = 0"
+
+catchall:
+  name: percussion
+  tag_regex: percussion
