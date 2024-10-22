@@ -14,7 +14,7 @@ class RawSql(Criterion):
     def fields(self):
         return []
 
-    def get_sql(self, **kwargs):
+    def get_sql(self, **_):
         return self.raw_sql
 
 class Path:
