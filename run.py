@@ -82,7 +82,6 @@ def traverse_hierarchy(db, node, symlink = True, path = output_path, query = Non
         for sample in duplicates: catchall_samples.remove(sample)
         generate_symlinks(catchall_samples, path.append(catchall_path))
 
-
     return samples
 
 def generate_symlinks(samples: list, path: Path):
@@ -109,4 +108,3 @@ def main(keep: bool, reset: bool):
     
 if __name__ == '__main__':
     main()
-
