@@ -8,7 +8,7 @@ import yaml
 import re
 import os
 
-from utils import Path, Sample, addPredicates
+from utils import Path, SampleWrapper, addPredicates
 
 with open ('./config/config.yaml', 'r') as f:
     config = yaml.safe_load(f.read())
@@ -68,7 +68,7 @@ def traverse_hierarchy(db, node, symlink = True, path = output_path, query = Non
     query = addPredicates(node, query)
 
     def execute(query):
-        return [*map(Sample, db.execute(str(query)).fetchall())]
+        return [*map(SampleWrapper, db.execute(str(query)).fetchall())]
 
     def remove_duplicates(target, checkList):
         get_hash = lambda s: s.get_hash() 

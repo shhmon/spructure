@@ -49,7 +49,7 @@ class Path:
     def __str__(self):
         return os.path.join(*self.args)
 
-class Sample:
+class SampleWrapper:
     def __init__(self, sample):
         self.sample = sample
         
