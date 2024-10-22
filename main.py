@@ -91,6 +91,7 @@ def traverse_hierarchy(db, node, symlink=True, path=output_path, query=None):
         catchall_path = path.append(catchall.get('name'))
         catchall_samples = traverse_hierarchy(db, catchall, False)
         catchall_samples = remove_duplicates(catchall_samples, samples)
+        samples = samples + catchall_samples
         generate_symlinks(catchall_samples, catchall_path)
 
     return samples
@@ -123,7 +124,7 @@ def main(keep: bool, reset: bool, debug: bool):
         samples = traverse_hierarchy(db, hierarchy)
         subprocess.call(f'open {output_path}', shell=True)
 
-    print(f'Done {len(samples)}')
+    print(f'Done ({len(samples)})')
     
 if __name__ == '__main__':
     main()
