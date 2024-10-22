@@ -45,7 +45,6 @@ class SampleWrapper:
         self.hash = sample[8]
         self.filename = sample[10]
 
-
 class RawSql(Criterion):
     def __init__(self, raw_sql, alias=None):
         super().__init__(alias)

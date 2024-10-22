@@ -1,4 +1,4 @@
-# Predicate props:
+# Predicates:
 # tag_regex: tag regexp
 # file_regex: filename regexp
 # key_regex: audio_key | filename regexp
@@ -58,6 +58,9 @@ dirs:
       - "audio_key not null"
       - "INSTR(tags, 'drums') = 0"
       - "INSTR(filename, '808') = 0"
+    # dirs:
+    #   - name: "f#"
+    #     key_regex: "(Fmin|f#|F#|Gbmin|Gb#)"
 
 catchall:
   name: misc
