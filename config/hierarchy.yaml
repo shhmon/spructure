@@ -30,16 +30,16 @@ dirs:
         sample_type: oneshot
       - name: loops
         sample_type: loop
-  - name: toms
-    tag_regex: "(?=.*toms)(?=.*drums)" 
+  - name: claps
+    tag_regex: claps
+    file_regex: "^(?!.*snare.*$).*$"
     dirs:
       - name: oneshots
         sample_type: oneshot
       - name: loops
         sample_type: loop
-  - name: claps
-    tag_regex: claps
-    file_regex: "^(?!.*snare.*$).*$"
+  - name: toms
+    tag_regex: "(?=.*toms)(?=.*drums)" 
     dirs:
       - name: oneshots
         sample_type: oneshot

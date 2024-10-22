@@ -61,9 +61,6 @@ def traverse_hierarchy(db, node, path=output_path, query=None):
     output = node.get('output')
     catchall = node.get('catchall')
 
-    samples = []
-    query = add_predicates(node, query)
-
     def execute(query):
         return [*map(lambda s: SampleWrapper(s, path), db.execute(str(query)).fetchall())]
 
@@ -73,6 +70,9 @@ def traverse_hierarchy(db, node, path=output_path, query=None):
 
     if name:
         path = path.append(name).make_directory()
+
+    query = add_predicates(node, query)
+    samples = []
 
     if dirs:
         for subnode in dirs:
