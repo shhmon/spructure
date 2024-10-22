@@ -8,7 +8,7 @@ import yaml
 import re
 import os
 
-from utils import Path, addPredicates
+from utils import Path, Sample, addPredicates
 
 with open ('./config/config.yaml', 'r') as f:
     config = yaml.safe_load(f.read())
@@ -68,11 +68,12 @@ def traverse_hierarchy(db, node, symlink = True, path = output_path, query = Non
     query = addPredicates(node, query)
 
     def execute(query):
-        return db.execute(str(query)).fetchall()
+        return [*map(Sample, db.execute(str(query)).fetchall())]
 
-    def remove_duplicates(fromList, checkList):
-        duplicates = filter(lambda sample: sample in checkList, fromList)
-        for sample in duplicates: fromList.remove(sample)
+    def remove_duplicates(target, checkList):
+        get_hash = lambda s: s.get_hash() 
+        hashes = [*map(get_hash, checkList)]
+        return [s for s in target if get_hash(s) not in hashes]
 
     if name:
         path = path.append(name).make_directory()
@@ -82,8 +83,8 @@ def traverse_hierarchy(db, node, symlink = True, path = output_path, query = Non
             samples = samples + traverse_hierarchy(db, subnode, symlink, path, query)
         if output:
             current_samples = execute(query)
-            remove_duplicates(current_samples, samples)
-            generate_symlinks(current_samples, path)
+            current_samples = remove_duplicates(current_samples, samples)
+            if symlink: generate_symlinks(current_samples, path)
     else:
         samples = execute(query)
         if symlink: generate_symlinks(samples, path)
@@ -91,7 +92,7 @@ def traverse_hierarchy(db, node, symlink = True, path = output_path, query = Non
     if catchall:
         catchall_path = path.append(catchall.get('name'))
         catchall_samples = traverse_hierarchy(db, catchall, False)
-        remove_duplicates(catchall_samples, samples)
+        catchall_samples = remove_duplicates(catchall_samples, samples)
         generate_symlinks(catchall_samples, catchall_path)
 
     return samples
@@ -99,13 +100,11 @@ def traverse_hierarchy(db, node, symlink = True, path = output_path, query = Non
 def generate_symlinks(samples: list, path: Path):
     print(f'Generating symlinks for {path}')
 
-    for row in samples:
-        sample_path = row[1]
-        filename = row[10]
-        link_path = str(path.append(filename))
+    for sample in samples:
+        link_path = str(path.append(sample.get_filename()))
 
         if not os.path.exists(link_path):
-            os.symlink(sample_path, link_path)
+            os.symlink(sample.get_path(), link_path)
 
 @click.command()
 @click.option('--keep/--no-keep', default=False)

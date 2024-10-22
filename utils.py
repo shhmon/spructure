@@ -49,6 +49,19 @@ class Path:
     def __str__(self):
         return os.path.join(*self.args)
 
+class Sample:
+    def __init__(self, sample):
+        self.sample = sample
+        
+    def get_filename(self):
+        return self.sample[10]
+
+    def get_path(self):
+        return self.sample[1]
+
+    def get_hash(self):
+        return self.sample[8]
+
 def addPredicates(node, query = None):
     tag_regex = node.get('tag_regex')
     file_regex = node.get('file_regex')
@@ -68,7 +81,5 @@ def addPredicates(node, query = None):
     if sample_type:
         query = query.where(Samples.sample_type == sample_type)
     
-    print(query)
-
     return query
 

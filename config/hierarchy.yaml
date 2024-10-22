@@ -58,5 +58,4 @@ dirs:
       - "INSTR(filename, '808') = 0"
 
 catchall:
-  name: percussion
-  tag_regex: percussion
+  name: misc
