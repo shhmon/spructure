@@ -11,7 +11,6 @@ def debug(mode: str):
     unpack_logs(True)
     db = init_db()
 
-
     if mode == 'tags':
         tags = db.execute('SELECT "tags" FROM samples WHERE "local_path" NOT NULL').fetchall()
         flat = set(','.join(list(itertools.chain(*tags))).split(','))
