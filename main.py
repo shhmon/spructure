@@ -79,7 +79,7 @@ def traverse_hierarchy(db, node, symlink = True, path = output_path, query = Non
     if catchall:
         catchall_path = path.append(catchall.get('name'))
         catchall_samples = traverse_hierarchy(db, catchall, False)
-        duplicates = filter(lambda sample: sample in samples, catchall_samples)
+        duplicates = filter(lambda s: s in samples, catchall_samples)
         for sample in duplicates: catchall_samples.remove(sample)
         generate_symlinks(catchall_samples, catchall_path)
 
