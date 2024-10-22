@@ -15,8 +15,6 @@ with open ('./config/config.yaml', 'r') as f:
 with open ('./config/hierarchy.yaml', 'r') as f:
     hierarchy = yaml.safe_load(f.read())
 
-output_path = Path(config.get('sorted_dir'))
-
 def init_db():
     print('Initializing DB')
 
@@ -55,7 +53,7 @@ def unpack_logs(keep: bool):
 
     if not keep: os.remove(str(target))
 
-def traverse_hierarchy(db, node, path=output_path, query=None):
+def traverse_hierarchy(db, node, path, query=None):
     name = node.get('name')
     dirs = node.get('dirs', [])
     output = node.get('output', not dirs)
@@ -83,7 +81,7 @@ def traverse_hierarchy(db, node, path=output_path, query=None):
         samples = samples + dedupe(new_samples, samples)
 
     if catchall:
-        catch_samples = traverse_hierarchy(db, catchall)
+        catch_samples = traverse_hierarchy(db, catchall, path)
         samples = samples + dedupe(catch_samples, samples)
 
     return samples
@@ -92,11 +90,13 @@ def traverse_hierarchy(db, node, path=output_path, query=None):
 @click.option('--keep/--no-keep', default=False)
 @click.option('--reset/--no-reset', default=True)
 def main(keep: bool, reset: bool):
+    output_path = Path(config.get('sorted_dir'))
+    if reset: output_path.clear_directory()
+
     unpack_logs(keep)
     db = init_db()
 
-    if reset: output_path.clear_directory()
-    samples = traverse_hierarchy(db, hierarchy)
+    samples = traverse_hierarchy(db, hierarchy, output_path)
     for sample in samples: sample.generate_symlink()
     subprocess.call(f'open {output_path}', shell=True)
 
