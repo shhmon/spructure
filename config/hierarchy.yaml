@@ -1,6 +1,7 @@
 # Predicate props:
-# tag_regex: regexp
-# file_regex: regexp
+# tag_regex: tag regexp
+# file_regex: filename regexp
+# key_regex: audio_key regexp
 # sample_type: loop | oneshot
 # where: custom SQL predicate
 
@@ -11,11 +12,6 @@ dirs:
     dirs:
       - name: oneshots
         sample_type: oneshot
-        output: True
-        dirs:
-          - name: "f#"
-            where:
-              - "INSTR(audio_key, 'f#') > 0"
       - name: loops
         sample_type: loop
   - name: snares
@@ -50,7 +46,7 @@ dirs:
       - name: loops
         sample_type: loop
   - name: "808"
-    tag_regex: (?=.*808)(?=.*bass)
+    tag_regex: "(?=.*808)(?=.*bass)"
     file_regex: "808"
     dirs:
       - name: oneshots
@@ -65,8 +61,8 @@ dirs:
       - "INSTR(filename, '808') = 0"
     dirs:
       - name: "f#"
-        where:
-          - "(INSTR(audio_key, 'f#') > 0 OR REGEXP('(Fmin|f#|F#|Gbmin|Gb#)', filename))"
+        file_regex: "(Fmin|f#|F#|Gbmin|Gb#)"
+        key_regex: "f#"
 
 catchall:
   name: misc

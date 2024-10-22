@@ -65,6 +65,7 @@ class SampleWrapper:
 def addPredicates(node, query = None):
     tag_regex = node.get('tag_regex')
     file_regex = node.get('file_regex')
+    key_regex = node.get('key_regex')
     sample_type = node.get('sample_type')
     custom_where = node.get('where')
     
@@ -74,6 +75,9 @@ def addPredicates(node, query = None):
     if custom_where:
         for predicate in custom_where:
             query = query.where(RawSql(predicate))
+
+    if key_regex:
+        query = query.where(Regexp(tag_regex), Samples.audio_keyy)
     if tag_regex:
         query = query.where(Regexp(tag_regex, Samples.tags))
     if file_regex:
