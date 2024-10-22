@@ -8,7 +8,7 @@ import yaml
 import re
 import os
 
-from utils import Path, SampleWrapper, addPredicates
+from utils import Path, SampleWrapper, add_predicates
 
 with open ('./config/config.yaml', 'r') as f:
     config = yaml.safe_load(f.read())
@@ -33,7 +33,6 @@ def init_db():
     db.create_function("REGEXP", 2, regexp)
 
     return db
-
 
 def unpack_logs(keep: bool):
     print('Extracting Splice logs')
@@ -63,7 +62,7 @@ def traverse_hierarchy(db, node, symlink=True, path=output_path, query=None):
     catchall = node.get('catchall')
 
     samples = []
-    query = addPredicates(node, query)
+    query = add_predicates(node, query)
 
     def execute(query):
         return [*map(SampleWrapper, db.execute(str(query)).fetchall())]

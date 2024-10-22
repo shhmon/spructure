@@ -58,6 +58,21 @@ dirs:
       - "audio_key not null"
       - "INSTR(tags, 'drums') = 0"
       - "INSTR(filename, '808') = 0"
+    dirs:
+      - name: oneshots
+        sample_type: oneshot
+        output: True
+        dirs:
+          - name: bass
+            tag_regex: bass
+          - name: synth
+            tag_regex: synth
+          - name: vocal
+            tag_regex: vocals
+          - name: keys
+            tag_regex: keys
+      - name: loops
+        sample_type: loop
     # dirs:
     #   - name: "f#"
     #     key_regex: "(Fmin|f#|F#|Gbmin|Gb#)"

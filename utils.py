@@ -56,7 +56,7 @@ class RawSql(Criterion):
     def get_sql(self, **_):
         return self.raw_sql
 
-def addPredicates(node, query = None):
+def add_predicates(node, query = None):
     tag_regex = node.get('tag_regex')
     file_regex = node.get('file_regex')
     key_regex = node.get('key_regex')
