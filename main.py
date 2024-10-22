@@ -1,6 +1,7 @@
 import zipfile
 import subprocess
 import sqlite3
+import random
 import shutil
 import click
 import yaml
@@ -9,7 +10,7 @@ import os
 
 from utils import Path, addPredicates
 
-with open ('./config/config.json', 'r') as f:
+with open ('./config/config.yaml', 'r') as f:
     config = yaml.safe_load(f.read())
 with open ('./config/hierarchy.yaml', 'r') as f:
     hierarchy = yaml.safe_load(f.read())
@@ -82,6 +83,8 @@ def traverse_hierarchy(db, node, symlink = True, path = output_path, query = Non
         for sample in duplicates: catchall_samples.remove(sample)
         generate_symlinks(catchall_samples, catchall_path)
 
+    print(query)
+
     return samples
 
 def generate_symlinks(samples: list, path: Path):
@@ -99,12 +102,22 @@ def generate_symlinks(samples: list, path: Path):
 @click.command()
 @click.option('--keep/--no-keep', default=False)
 @click.option('--reset/--no-reset', default=True)
-def main(keep: bool, reset: bool):
+@click.option('--debug/--no-debug', default=False)
+def main(keep: bool, reset: bool, debug: bool):
     unpack_logs(keep)
     db = init_db()
-    if reset: output_path.clear_directory()
-    traverse_hierarchy(db, hierarchy)
-    subprocess.call(f'open {output_path}', shell=True)
+
+    if debug:
+        samples = db.execute("SELECT * FROM samples").fetchall()
+        random_index = random.randint(0, len(samples)-1)
+        for i, col in enumerate(db.execute("PRAGMA table_info(samples)").fetchall()):
+            print(col)
+            print(samples[random_index][i])
+    else:
+        if reset: output_path.clear_directory()
+        traverse_hierarchy(db, hierarchy)
+        subprocess.call(f'open {output_path}', shell=True)
+
     print('Done')
     
 if __name__ == '__main__':
