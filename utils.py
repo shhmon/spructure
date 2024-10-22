@@ -6,17 +6,6 @@ from pypika import CustomFunction, Query, Table, Criterion
 Samples = Table('samples')
 Regexp = CustomFunction('REGEXP', ['expr', 'item'])
 
-class RawSql(Criterion):
-    def __init__(self, raw_sql, alias=None):
-        super().__init__(alias)
-        self.raw_sql = raw_sql
-
-    def fields(self):
-        return []
-
-    def get_sql(self, **_):
-        return self.raw_sql
-
 class Path:
     def __init__(self, *args):
         self.args = args
@@ -55,6 +44,18 @@ class SampleWrapper:
         self.path = sample[1]
         self.hash = sample[8]
         self.filename = sample[10]
+
+
+class RawSql(Criterion):
+    def __init__(self, raw_sql, alias=None):
+        super().__init__(alias)
+        self.raw_sql = raw_sql
+
+    def fields(self):
+        return []
+
+    def get_sql(self, **_):
+        return self.raw_sql
 
 def addPredicates(node, query = None):
     tag_regex = node.get('tag_regex')
