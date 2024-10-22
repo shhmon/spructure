@@ -120,10 +120,10 @@ def main(keep: bool, reset: bool, debug: bool):
             print(samples[random_index][i])
     else:
         if reset: output_path.clear_directory()
-        traverse_hierarchy(db, hierarchy)
+        samples = traverse_hierarchy(db, hierarchy)
         subprocess.call(f'open {output_path}', shell=True)
 
-    print('Done')
+    print(f'Done {len(samples)}')
     
 if __name__ == '__main__':
     main()
