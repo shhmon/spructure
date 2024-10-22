@@ -56,9 +56,9 @@ def unpack_logs(keep: bool):
     if not keep: os.remove(str(target))
 
 def traverse_hierarchy(db, node, path=output_path, query=None):
-    dirs = node.get('dirs')
     name = node.get('name')
-    output = node.get('output')
+    dirs = node.get('dirs', [])
+    output = node.get('output', not dirs)
     catchall = node.get('catchall')
 
     def execute(query):
@@ -74,19 +74,17 @@ def traverse_hierarchy(db, node, path=output_path, query=None):
     query = add_predicates(node, query)
     samples = []
 
-    if dirs:
-        for subnode in dirs:
-            s = traverse_hierarchy(db, subnode, path, query)
-            samples = samples + dedupe(s, samples)
-        if output:
-            s = execute(query)
-            samples = samples + dedupe(s, samples)
-    else:
-        samples = execute(query)
+    for subnode in dirs:
+        new_samples = traverse_hierarchy(db, subnode, path, query)
+        samples = samples + dedupe(new_samples, samples)
+
+    if output:
+        new_samples = execute(query)
+        samples = samples + dedupe(new_samples, samples)
 
     if catchall:
-        s = traverse_hierarchy(db, catchall)
-        samples = samples + dedupe(s, samples)
+        catch_samples = traverse_hierarchy(db, catchall)
+        samples = samples + dedupe(catch_samples, samples)
 
     return samples
 
