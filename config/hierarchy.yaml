@@ -72,6 +72,15 @@ dirs:
             tag_regex: keys
       - name: loops
         sample_type: loop
+        dirs:
+          - name: bass
+            tag_regex: bass
+          - name: vocal
+            tag_regex: vocals
+          - name: synth
+            tag_regex: synth
+          - name: keys
+            tag_regex: keys
 
 catchall:
   name: misc
