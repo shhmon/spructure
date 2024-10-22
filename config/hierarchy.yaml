@@ -65,10 +65,10 @@ dirs:
         dirs:
           - name: bass
             tag_regex: bass
-          - name: synth
-            tag_regex: synth
           - name: vocal
             tag_regex: vocals
+          - name: synth
+            tag_regex: synth
           - name: keys
             tag_regex: keys
       - name: loops

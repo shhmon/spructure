@@ -1,14 +1,14 @@
 import zipfile
 import subprocess
 import sqlite3
-import random
 import shutil
 import click
 import yaml
 import re
 import os
 
-from utils import Path, SampleWrapper, add_predicates
+from utils import Path, SampleWrapper
+from predicates import add_predicates
 
 with open ('./config/config.yaml', 'r') as f:
     config = yaml.safe_load(f.read())
@@ -55,7 +55,7 @@ def unpack_logs(keep: bool):
 
     if not keep: os.remove(str(target))
 
-def traverse_hierarchy(db, node, symlink=True, path=output_path, query=None):
+def traverse_hierarchy(db, node, path=output_path, query=None):
     dirs = node.get('dirs')
     name = node.get('name')
     output = node.get('output')
@@ -65,9 +65,9 @@ def traverse_hierarchy(db, node, symlink=True, path=output_path, query=None):
     query = add_predicates(node, query)
 
     def execute(query):
-        return [*map(SampleWrapper, db.execute(str(query)).fetchall())]
+        return [*map(lambda s: SampleWrapper(s, path), db.execute(str(query)).fetchall())]
 
-    def remove_duplicates(target, check_list):
+    def dedupe(target, check_list):
         hashes = [*map(lambda s: s.hash, check_list)]
         return [s for s in target if s.hash not in hashes]
 
@@ -76,52 +76,31 @@ def traverse_hierarchy(db, node, symlink=True, path=output_path, query=None):
 
     if dirs:
         for subnode in dirs:
-            samples = samples + traverse_hierarchy(db, subnode, symlink, path, query)
+            s = traverse_hierarchy(db, subnode, path, query)
+            samples = samples + dedupe(s, samples)
         if output:
-            current_samples = execute(query)
-            current_samples = remove_duplicates(current_samples, samples)
-            samples = samples + current_samples
-            if symlink: generate_symlinks(current_samples, path)
+            s = execute(query)
+            samples = samples + dedupe(s, samples)
     else:
         samples = execute(query)
-        if symlink: generate_symlinks(samples, path)
 
     if catchall:
-        catchall_path = path.append(catchall.get('name'))
-        catchall_samples = traverse_hierarchy(db, catchall, False)
-        catchall_samples = remove_duplicates(catchall_samples, samples)
-        samples = samples + catchall_samples
-        generate_symlinks(catchall_samples, catchall_path)
+        s = traverse_hierarchy(db, catchall)
+        samples = samples + dedupe(s, samples)
 
     return samples
-
-def generate_symlinks(samples: list, path: Path):
-    print(f'Generating symlinks for {path} ({len(samples)})')
-
-    for sample in samples:
-        link_path = str(path.append(sample.filename))
-
-        if not os.path.exists(link_path):
-            os.symlink(sample.path, link_path)
 
 @click.command()
 @click.option('--keep/--no-keep', default=False)
 @click.option('--reset/--no-reset', default=True)
-@click.option('--debug/--no-debug', default=False)
-def main(keep: bool, reset: bool, debug: bool):
+def main(keep: bool, reset: bool):
     unpack_logs(keep)
     db = init_db()
 
-    if debug:
-        samples = db.execute("SELECT * FROM samples").fetchall()
-        random_index = random.randint(0, len(samples)-1)
-        for i, col in enumerate(db.execute("PRAGMA table_info(samples)").fetchall()):
-            print(col)
-            print(samples[random_index][i])
-    else:
-        if reset: output_path.clear_directory()
-        samples = traverse_hierarchy(db, hierarchy)
-        subprocess.call(f'open {output_path}', shell=True)
+    if reset: output_path.clear_directory()
+    samples = traverse_hierarchy(db, hierarchy)
+    for sample in samples: sample.generate_symlink()
+    subprocess.call(f'open {output_path}', shell=True)
 
     print(f'Done ({len(samples)})')
     
