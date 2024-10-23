@@ -6,7 +6,7 @@ import itertools
 from main import init_db, unpack_logs
 
 @click.command()
-@click.option('--mode', default='tags')
+@click.option('--mode', default=None)
 def debug(mode: str):
     unpack_logs(True)
     db = init_db()
