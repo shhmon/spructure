@@ -1,3 +1,4 @@
+from tqdm import tqdm
 import zipfile
 import subprocess
 import sqlite3
@@ -97,7 +98,8 @@ def main(keep: bool, reset: bool):
     db = init_db()
 
     samples = traverse(db, hierarchy, output_path)
-    for sample in samples: sample.generate_symlink()
+    print('Generating files')
+    for sample in tqdm(samples): sample.generate_copy()
     subprocess.call(f'open {output_path}', shell=True)
 
     print(f'Done ({len(samples)})')

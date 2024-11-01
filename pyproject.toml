@@ -19,6 +19,7 @@ click = "^8.1.7"
 simpleaudio = "^1.0.4"
 pypika = "^0.48.9"
 pyyaml = "^6.0.2"
+tqdm = "^4.66.6"
 
 [build-system]
 requires = ["poetry-core"]

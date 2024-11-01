@@ -33,14 +33,17 @@ class Path:
         return os.path.join(*self.args)
 
 class SampleWrapper:
-    def __init__(self, sample: list, path: Path):
+    def __init__(self, sample: list, target_path: Path):
         self.sample = sample
         self.path = sample[1]
         self.hash = sample[8]
         self.filename = sample[10]
-        self.link_path = str(path.append(self.filename))
+        self.target_path = str(target_path.append(self.filename))
+
+    def generate_copy(self):
+        if not os.path.exists(self.target_path):
+            shutil.copyfile(self.path, self.target_path)
 
     def generate_symlink(self):
-        print(f'Generating symlink {self.link_path}')
-        if not os.path.exists(self.link_path):
-            os.symlink(self.path, self.link_path)
+        if not os.path.exists(self.target_path):
+            os.symlink(self.path, self.target_path)
