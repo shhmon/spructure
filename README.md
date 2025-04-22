@@ -18,21 +18,21 @@ To use the oragnizer tool, clone the repo and setup the following files:
 
 Specifies the input and output directories along with some metadata. 
 
-- username: <splice username>
-- sorted_dir: <output directory>
-- zip_dir: <directory where your splice logs are located>
-- zip_fuzzy: SpliceLogs
-- log_dir: <debug directory for logs>
+- `username: <splice username>`
+- `sorted_dir: <output directory>`
+- `zip_dir: <directory where your splice logs are located>`
+- `zip_fuzzy: SpliceLogs`
+- `log_dir: <debug directory for logs>`
 
 2. `config/hierarchy.yaml`
 
 Specifies the target hierarchy for the output folder. The each entry in this file gets translated into a folder in the output directory. Each folder definition contains a name along with predicates. These can be one of the following:
 
-- tag_regex: tag regexp
-- file_regex: filename regexp
-- key_regex: audio_key | filename regexp
-- sample_type: loop | oneshot
-- where: custom SQL predicate
+- `tag_regex: tag regexp`
+- `file_regex: filename regexp`
+- `key_regex: audio_key | filename regexp`
+- `sample_type: loop | oneshot`
+- `where: custom SQL predicate`
 
 The folder definition can also specify another `dirs` property with subfolder. Try running it with the default hierarchy and compare the output to the configuration.
 
