@@ -2,6 +2,8 @@
 
 This project aims to bring some order to the sample files downloaded via Splice without having to use the GUI. Provide a target structure along with predicates for each folder in order to symlink all your splice samples into the shape you want.
 
+Originally this was a fork of [Splorganizer](https://github.com/ebai101/splorganizer) but has since then evolved into a way more customizable utility.
+
 ## Get started
 
 #### Download Sample Data
