@@ -51,3 +51,7 @@ The available flags for the scrpit are as follow:
 - `--keep/--no-keep` (default = False): If true, keeps the Splice log files. If false, removes them upon running the script.
 - `--reset/--no-reset` (default = True): If true, resets the output directory and starts from scratch. If false, tries to merge the existing files in the output directory with any potentially new files.
 
+
+### Customizing
+
+You can customize your sample hierarchy however you want. Compare the default configuration to the output you get and take a look at the predicates.py file to gain a better understanding of how you can build your predicates to create the hierachy you want 
