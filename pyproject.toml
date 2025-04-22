@@ -1,22 +1,16 @@
 [tool.poetry]
 name = "sample-organizer"
 version = "0.1.0"
-description = ""
-authors = ["Your Name <you@example.com>"]
+description = "Splice sample library organizer"
+authors = ["Szymon Stypa <szymon@backtick.se>"]
 readme = "README.md"
 
 [tool.poetry.dependencies]
 python = ">=3.10, <3.12"
-matplotlib = "3.7.0"
-pandas = "1.5.3"
 librosa = "0.10.0"
-sklearn = "0.0"
 numpy = "1.23.5"
 IPython = "8.10.0"
-tensorflow-macos = "2.12"
-tensorflow-metal = "^1.1.0"
 click = "^8.1.7"
-simpleaudio = "^1.0.4"
 pypika = "^0.48.9"
 pyyaml = "^6.0.2"
 tqdm = "^4.66.6"
